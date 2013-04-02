@@ -8,10 +8,12 @@ package feedBackTest;
 
 import java.awt.Button;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import puzzleAgent.agentPanel;
 import puzzleFunctions.PuzzleCanvas;
 import puzzleFunctions.Solution8Window;
 
@@ -24,7 +26,8 @@ public class puzzleWindow extends Frame {
     /**
      * @param args the command line arguments
      */
-    
+        agentPanel aPanel;
+        
         GridBagLayout m_layoutManager;
         String frameStatus;
 
@@ -60,6 +63,7 @@ public class puzzleWindow extends Frame {
         
             puzzleWindow foo = new puzzleWindow();
             foo.setVisible(true);
+            foo.setSize(new Dimension(300,400));
         }
        
 
@@ -75,9 +79,11 @@ public class puzzleWindow extends Frame {
 		m_shuffleButton	= new Button("Shuffle");
 		m_solveButton	= new Button("Solve");
 		m_haltButton	= new Button("Halt");
+                aPanel = new agentPanel();
 
 		// Add the items to the top-level applet layout
-		addComponent(m_eightPuzzleCanvas, 0, 0, 6, 6, GridBagConstraints.BOTH, 1, 1);
+		addComponent(m_eightPuzzleCanvas, 0, 1, 6, 6, GridBagConstraints.BOTH, 1, 1);
+                addComponent(aPanel,    0, 0, 4, 1, GridBagConstraints.BOTH, 1, 1);
 		addComponent(m_shuffleButton,     3, 6, 2, 1, GridBagConstraints.NONE, 1, 0);
 		addComponent(m_solveButton,       5, 6, 2, 1, GridBagConstraints.NONE, 1, 0);
 		addComponent(m_haltButton,        7, 6, 2, 1, GridBagConstraints.NONE, 1, 0);

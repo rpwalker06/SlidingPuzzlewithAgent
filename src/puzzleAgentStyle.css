@@ -1,0 +1,18 @@
+/* 
+    Document   : puzzleAgentStyle
+    Created on : Apr 2, 2013, 2:27:41 PM
+    Author     : Robert Walker
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root {display: block;}
+
+.appletDisplay{
+    top: 30%;
+    left: 10%;
+    position: absolute;
+}
+
+h1 {font-family: 'Courier New',Courier,monospace;}
+body{background-color: #009900;}

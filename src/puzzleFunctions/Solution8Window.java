@@ -123,12 +123,16 @@ extends Thread {
             solutionNodes.add(0,node);
             
             //add the parents to the front of the list
-            while (currentNode.getParent() != null) solutionNodes.add(0,currentNode.getParent());
+            while (currentNode.getParent() != null)
+            {
+                solutionNodes.add(0,currentNode.getParent());
+                currentNode = currentNode.getParent();
+            }
             
             //print from the front of the list forward
-            for (GameNode c : solutionNodes)
+            for (int i=0; i < solutionNodes.size(); i++)
             {
-                c.getPuzzleGame().printOut();
+                solutionNodes.get(i).getPuzzleGame().printOut(i+1);
             }
         }
 
@@ -151,7 +155,6 @@ extends Thread {
                 //debug code to print out the solution node, now that it has been determined
                 printSolution(solutionNode);
                 
-
                 if (solutionNode != null) doSolution(solutionNode);
 
 

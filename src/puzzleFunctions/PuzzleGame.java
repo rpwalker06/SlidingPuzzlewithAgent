@@ -185,10 +185,10 @@ public class PuzzleGame {
    }
 
 //Console Printout
-   public void printOut()
+   public void printOut(int move_no)
    {
-       String header_line = "+==============================+";
-       String footer_line = header_line;
+       String header_line = "+=============Move No: " + move_no  + "==============+";
+       String footer_line = "=++++++++++++++++++++++++++++++++++++=";
        
        System.out.println(header_line);
        String indent = "\t";
