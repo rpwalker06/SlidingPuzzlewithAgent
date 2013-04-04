@@ -58,15 +58,6 @@ public class puzzleWindow extends Frame {
         
         }
 
-	    
-    public static void main(String[] args) {
-        
-            puzzleWindow foo = new puzzleWindow();
-            foo.setVisible(true);
-            foo.setSize(new Dimension(300,400));
-        }
-       
-
 	private void
 	init() {
 		// Set up the top-level layout

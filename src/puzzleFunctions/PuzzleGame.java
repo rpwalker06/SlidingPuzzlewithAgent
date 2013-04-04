@@ -13,8 +13,6 @@ package puzzleFunctions;
 
 import java.util.*;
 
-
-
 public class PuzzleGame {
 
     public static final int BLANK = 0;
@@ -58,7 +56,9 @@ public class PuzzleGame {
            for(int col = 0; col < 3; col++)
                spaces [col][row] = build.spaces[col][row];
    }
-
+   
+   public int[][] getBoardState() 
+    {return spaces;}
 
    public boolean isSpacesCorrect()
    {

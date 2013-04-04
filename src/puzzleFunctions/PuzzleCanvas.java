@@ -14,73 +14,35 @@ package puzzleFunctions;
 import java.awt.*;
 import java.util.*;
 
-
-
  //  paints an eight-puzzle
-
-
 public class PuzzleCanvas extends Canvas {
 
-
 	protected PuzzleGame m_puzzle = new PuzzleGame();
-
-
-
-
 	protected int[] m_x = new int[9];
-
-
-
-
 	protected int[] m_y = new int[9];
 
+        // size of the canvans
+        private Dimension m_oldSize = new Dimension();
+	
+        // Just initialize it to garbage
+        
+        // An image for double buffering
+        private Image m_imageBuffer;
 
+        // The image's graphics context
+        private Graphics m_imageBufferGraphics;
 
-	 // size of the canvans
+        // A separate thread to deal with moving tiles around
+        TileMover m_tileMover = new TileMover(this);
 
-
-	private Dimension m_oldSize = new Dimension();
-		// Just initialize it to garbage
-
-
-
-	 // An image for double buffering
-
-
-	private Image m_imageBuffer;
-
-
-
-
-	 // The image's graphics context
-
-
-	private Graphics m_imageBufferGraphics;
-
-
-
-	 // A separate thread to deal with moving tiles around
-
-
-	TileMover m_tileMover = new TileMover(this);
-
-
-
-
-
-	 // Create a new PuzzleCanvas
-
-
-	public
+        // Create a new PuzzleCanvas
+        public
 	PuzzleCanvas() {
 		// Start the tile mover thread
 		m_tileMover.start();
 	}
-
-
-
-
-	public Dimension
+        
+        public Dimension
 	preferredSize() {
 		FontMetrics m = getFontMetrics(getFont());
 
@@ -90,11 +52,7 @@ public class PuzzleCanvas extends Canvas {
 		return new Dimension(width, height);
 	}
 
-
-
-
-
-	public Dimension
+        public Dimension
 	minimumSize() {
 		FontMetrics m = getFontMetrics(getFont());
 
@@ -103,17 +61,12 @@ public class PuzzleCanvas extends Canvas {
 
 		return new Dimension(width, height);
 	}
-
-
-
+        
 	public void paint(Graphics g) {
 		update(g);
 	}
 
-
-
-
-	public void update(Graphics g) {
+        public void update(Graphics g) {
 		Dimension d = size();
 
 		int dx = d.width / 3;
@@ -145,7 +98,6 @@ public class PuzzleCanvas extends Canvas {
 		// raw each tile
 		for (int i = 1; i <= 8; ++i) {
 
-
 			// raw the tile itself
 			m_imageBufferGraphics.setColor(Color.yellow);
 			m_imageBufferGraphics.fill3DRect(m_x[i], m_y[i], dx, dy, true);
@@ -162,12 +114,7 @@ public class PuzzleCanvas extends Canvas {
 		g.drawImage(m_imageBuffer, 0, 0, getBackground(), this);
 	}
 
-
-
-
 	 //Reset the locaton of each tile
-
-
 	protected void
 	setTileLocations() {
 		Dimension d = size();
@@ -179,9 +126,6 @@ public class PuzzleCanvas extends Canvas {
 		}
 	}
 
-
-
-
 	private int
 	coordinateToTile(int x, int y) {
 		Dimension d = size();
@@ -192,11 +136,7 @@ public class PuzzleCanvas extends Canvas {
 		return m_puzzle.where_is_Space(x / dx, y / dy);
 	}
 
-
-
-	 // Shuffle the eight puzzle
-
-
+	// Shuffle the eight puzzle
 	public void
 	shuffle() {
 
@@ -205,29 +145,22 @@ public class PuzzleCanvas extends Canvas {
 		// update of the (x, y) coordinates...
 		setTileLocations();
 
-
 		repaint();
 	}
 
-
-
-	public void
+        public void
 	move(int tile) {
 		// Queue a move to the tile mover
 		m_tileMover.move(tile);
 	}
 
+        public PuzzleGame getPuzzle() 
+            {return m_puzzle;}
+        
+        public void setPuzzle(PuzzleGame gamePuzzle) 
+            { m_puzzle=gamePuzzle;}
 
-
-
-
-	public PuzzleGame
-	getPuzzle() { return m_puzzle; }
-
-
-
-
-	public boolean
+        public boolean
 	mouseUp(Event event, int x, int y) {
 		int tile = coordinateToTile(x, y);
 		move(tile);
@@ -236,55 +169,34 @@ public class PuzzleCanvas extends Canvas {
 	}
 }
 
-
-
-
-
 class TileMover extends Thread {
-
 
 	private static final long REDRAW_INTERVAL = 60;
 
-
 	//steps it will take
-
 	private static final int ANIMATION_STEPS = 10;
 
-
-		PuzzleCanvas m_canvas;
-
-
-//	a queue
-
+        PuzzleCanvas m_canvas;
+        
+        //a queue
 	private Vector m_moves = new Vector();
 
-
-
-
-
-	public
+        public
 	TileMover(PuzzleCanvas canvas) {
 
 		m_canvas = canvas;
 	}
 
-
-
-	public synchronized void
+        public synchronized void
 	move(int tile) {
 		m_moves.addElement(new Integer(tile));
 		notify();
 	}
 
-
-
-
-	public synchronized int
+        public synchronized int
 	getNextMove()
 	throws InterruptedException {
-		while (m_moves.size() == 0) {
-			wait();
-		}
+		while (m_moves.size() == 0) {wait();}
 
 		Integer move = (Integer) m_moves.elementAt(0);
 		m_moves.removeElementAt(0);
@@ -292,10 +204,7 @@ class TileMover extends Thread {
 		return move.intValue();
 	}
 
-
-
-
-	public void
+        public void
 	run() {
 		try {
 			while (true) {
@@ -309,10 +218,7 @@ class TileMover extends Thread {
 		}
 	}
 
-
-
-
-	private void
+        private void
 	animateMove(int tile) {
 		// determine the location of the blank and the tile
 		SpaceLocal blankLoc = m_canvas.m_puzzle.getSpaceLocal(PuzzleGame.BLANK);
@@ -320,10 +226,8 @@ class TileMover extends Thread {
 
 		Dimension d = m_canvas.size();
 
-
 		int dx = (blankLoc.x - tileLoc.x) * (d.width  / (3 * ANIMATION_STEPS));
 		int dy = (blankLoc.y - tileLoc.y) * (d.height / (3 * ANIMATION_STEPS));
-
 
 		// Compute the clipping region
 		int left, right, top, bottom;
@@ -363,10 +267,7 @@ class TileMover extends Thread {
 		//move the tile (underlining puzzle)
 		m_canvas.m_puzzle.willMove(tile);
 
-
 		m_canvas.setTileLocations();
 		m_canvas.repaint(REDRAW_INTERVAL);
 	}
 }
-
-

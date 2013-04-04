@@ -20,22 +20,22 @@ public class Solution8Applet
 extends java.applet.Applet {
 
 	/** The layout manager */
-	GridBagLayout m_layoutManager;
+	protected GridBagLayout m_layoutManager;
 
 	// Buttons to control the applet
-	Button m_shuffleButton;
-	Button m_solveButton;
-	Button m_haltButton;
+	protected Button m_shuffleButton;
+	protected Button m_solveButton;
+	protected Button m_haltButton;
 
 	/** A canvas for the eight puzzle */
-	PuzzleCanvas m_eightPuzzleCanvas;
+	protected PuzzleCanvas m_eightPuzzleCanvas;
 
 
 	/*
 	 * A solver thread
 	 */
 
-	Solution8 m_solver;
+	protected Solution8 m_solver;
 
 
 	/**
@@ -77,13 +77,13 @@ extends java.applet.Applet {
 	 * Adds a component to the screen
 	 */
 
-	private void
+	protected void
 	addComponent(Component comp,
-							int gridx, int gridy,
-							int gridwidth, int gridheight,
-							int fill,
-							int weightx,
-							int weighty) {
+                    int gridx, int gridy,
+                    int gridwidth, int gridheight,
+                    int fill,
+                    int weightx,
+                    int weighty) {
 
 		GridBagConstraints constraints = new GridBagConstraints();
 
@@ -129,11 +129,9 @@ extends java.applet.Applet {
 	action(Event event, Object arg) {
 		if (event.target == m_shuffleButton) {
 
-
 			m_eightPuzzleCanvas.shuffle();
 
 		} else if (event.target == m_solveButton) {
-
 
 			m_solver = new Solution8(this);
 			m_solver.start();
@@ -151,19 +149,12 @@ extends java.applet.Applet {
 		return true;
 	}
 
-
-
-	/*
+        /*
 	 * Returns the PuzzleCanvas that belongs to the applet
 	 */
 
-	public PuzzleCanvas
-	getPuzzleCanvas() {
-		return m_eightPuzzleCanvas;
-	}
-
-
-
+	public PuzzleCanvas getPuzzleCanvas() 
+            { return m_eightPuzzleCanvas; }
 
 	/*
 	 * Enables or disables the user interface controls
