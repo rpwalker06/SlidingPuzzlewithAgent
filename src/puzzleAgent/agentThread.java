@@ -13,19 +13,27 @@ public class agentThread implements Runnable {
     agentPanel communicationMedium;
     agentBrain intelligence;
     puzzleApplet parentApp;
-    boolean newMove;
+    Integer newMove;
+    boolean lastResponse;
+
+    public boolean getLastResponse() {return lastResponse;}
     
-    public void setNewMove(boolean moveNew)
+    public int getLastResponseInt() {return lastResponse ? 1 : 0;}
+
+    public void setLastResponse(boolean lastResponse) {this.lastResponse = lastResponse;}
+    
+    public void setNewMove(int moveNew)
         {newMove = moveNew;}
     
-    public synchronized void notifyMove()
+    public synchronized void notifyMove(int tile)
     {
-        setNewMove(true);
+        setNewMove(tile);
         notify();
     }
     
     public agentThread(puzzleApplet appParent)
     {
+        newMove = null;
         parentApp = appParent;
         communicationMedium = appParent.getAgentPanel();
         intelligence = new agentBrain(appParent);
@@ -37,10 +45,13 @@ public class agentThread implements Runnable {
     public synchronized void observeUserMoves() throws InterruptedException
     {
         //spin and wait for the user to report a move made
-        while (!newMove) {wait();}
+        while(newMove==null) {wait();}
         
         //we now check the move and respond accordingly
-        if (intelligence.checkUserMove())
+        setLastResponse(intelligence.checkUserMove(newMove));
+        this.parentApp.getPuzzleCanvas().notify();
+        
+        if (getLastResponse())
         {
             communicationMedium.sendMessageToUser("This is correct!");
             //intelligence.incrementBoardState();
@@ -50,8 +61,10 @@ public class agentThread implements Runnable {
             //respond to user with 
             communicationMedium.sendMessageToUser("This is incorrect!");
         }
+        
+        
             
-        newMove = false;
+        newMove = null;
     }
     
     @Override

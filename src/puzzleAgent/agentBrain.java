@@ -76,9 +76,9 @@ public class agentBrain {
             optimalMoveSequence.push(optimalSequence);
             int i=0;
             //push the correct sequence onto the agent's stack
-            while (optimalSequence.getParent() != null) 
+            while (optimalSequence.getParent().getParent() != null) 
             {
-                optimalSequence.getPuzzleGame().printOut(++i);
+                //optimalSequence.getPuzzleGame().printOut(++i);
                 optimalMoveSequence.push(optimalSequence.getParent());
                 optimalSequence = optimalSequence.getParent();
             }
@@ -87,12 +87,11 @@ public class agentBrain {
            return optimalMoveSequence;
        }
        
-       public boolean checkUserMove()
+       public boolean checkUserMove(int newMove)
        {
-           currentBoardSpaces = boardGame.getPuzzle().getBoardState();
-           targetBoardSpaces = optimalSolutionSequence.peek().getPuzzleGame().getBoardState();
+           int targetMove = optimalSolutionSequence.peek().getOperator();
            
-           boolean correctMove = Arrays.deepEquals(currentBoardSpaces, targetBoardSpaces);
+           boolean correctMove = targetMove == newMove ? true : false;
                       
            if(correctMove) optimalSolutionSequence.pop();
            

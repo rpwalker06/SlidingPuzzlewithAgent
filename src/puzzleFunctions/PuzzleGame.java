@@ -1,4 +1,4 @@
-package puzzleFunctions;
+    package puzzleFunctions;
 
 /*
  * PuzzleGame.java

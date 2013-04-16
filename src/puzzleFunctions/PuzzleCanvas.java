@@ -10,7 +10,6 @@ package puzzleFunctions;
  */
 //package AIEightPuzzleGame;
 
-
 import java.awt.*;
 import java.util.*;
 
@@ -20,6 +19,8 @@ public class PuzzleCanvas extends Canvas {
 	protected PuzzleGame m_puzzle = new PuzzleGame();
 	protected int[] m_x = new int[9];
 	protected int[] m_y = new int[9];
+        public static Color tileColor = Color.gray;
+        public static Color textColor = Color.darkGray;
 
         // size of the canvans
         private Dimension m_oldSize = new Dimension();
@@ -99,11 +100,11 @@ public class PuzzleCanvas extends Canvas {
 		for (int i = 1; i <= 8; ++i) {
 
 			// raw the tile itself
-			m_imageBufferGraphics.setColor(Color.yellow);
+			m_imageBufferGraphics.setColor(tileColor);
 			m_imageBufferGraphics.fill3DRect(m_x[i], m_y[i], dx, dy, true);
 
 			// Draw the tile's number
-			m_imageBufferGraphics.setColor(Color.red);
+			m_imageBufferGraphics.setColor(textColor);
 
 			m_imageBufferGraphics.drawString(String.valueOf(i),
 				m_x[i] + (dx / 2) - (fontMetrics.stringWidth(String.valueOf(i)) / 2),
@@ -126,7 +127,7 @@ public class PuzzleCanvas extends Canvas {
 		}
 	}
 
-	private int
+	protected int
 	coordinateToTile(int x, int y) {
 		Dimension d = size();
 
@@ -162,7 +163,7 @@ public class PuzzleCanvas extends Canvas {
 
         public boolean
 	mouseUp(Event event, int x, int y) {
-		int tile = coordinateToTile(x, y);
+		int tile = coordinateToTile(x, y); 
 		move(tile);
 
 		return true;

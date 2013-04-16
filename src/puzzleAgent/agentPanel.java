@@ -60,3 +60,7 @@ public class agentPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lbl_AgentFeedback;
     // End of variables declaration//GEN-END:variables
 }
+
+class PictureAgentPanel
+
+{}
