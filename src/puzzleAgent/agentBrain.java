@@ -1,7 +1,6 @@
 package puzzleAgent;
 
 import feedBackTest.puzzleApplet;
-import java.util.Arrays;
 import java.util.Stack;
 import puzzleFunctions.GameNode;
 import puzzleFunctions.PuzzleCanvas;

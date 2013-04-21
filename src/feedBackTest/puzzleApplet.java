@@ -1,16 +1,17 @@
 package feedBackTest;
 
+import java.applet.AudioClip;
 import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Event;
-import java.awt.event.InputEvent;
+import java.awt.Container;
+import java.awt.Label;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import javax.swing.JLabel;
 import puzzleAgent.PuzzleCanvasObservable;
 import puzzleAgent.agentPanel;
 import puzzleAgent.agentThread;
-import puzzleFunctions.PuzzleCanvas;
+import puzzleAgent.picAgentPanel;
+import puzzleAgent.textAgentPanel;
 import puzzleFunctions.PuzzleGame;
 import puzzleFunctions.Solution8Applet;
 
@@ -20,16 +21,29 @@ import puzzleFunctions.Solution8Applet;
  */
 public class puzzleApplet extends Solution8Applet {
 
-        PuzzleCanvasObservable m_eightPuzzleCanvasObservable;
+        public Label puzzleAppletHeading = new Label("Puzzle #1");
+        PuzzleCanvasObservable m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
         agentPanel aPanel;
         agentThread myAgent;
-        int[][] boardState = {{4,3,7},{0,1,6},{8,2,5}};
+        int[][] boardState;
         puzzleSQLWriter writer;
         public static int participantID;
-        public static int puzzleSequenceNo;
+        public static String appletHostName;
+        public static int agentType;
         public static int sessionPuzzleNo;
-        private static final int BOARDPOSITIONS = 9;
-        public static JLabel agentOutput;
+        HashMap<String, AudioClip> phrases = new HashMap<String,AudioClip>();
+        
+        Container holder = new Container();
+        puzzleTestSequence experiment = new puzzleTestSequence();
+        
+        private void loadPhrases()
+        {
+            phrases.put(agentPanel.WELCOME_RESPONSE, getAudioClip(getClass().getResource("/feedBackTest/sounds/"+agentPanel.WELCOME_RESPONSE+".wav")));
+            phrases.put(agentPanel.POSITIVE_RESPONSE, getAudioClip(getClass().getResource("/feedBackTest/sounds/"+agentPanel.POSITIVE_RESPONSE+".wav")));
+            phrases.put(agentPanel.NEGATIVE_RESPONSE, getAudioClip(getClass().getResource("/feedBackTest/sounds/"+agentPanel.NEGATIVE_RESPONSE+".wav")));
+            phrases.put(agentPanel.SOLVED_PUZZLE_RESPONSE, getAudioClip(getClass().getResource("/feedBackTest/sounds/"+agentPanel.SOLVED_PUZZLE_RESPONSE+".wav")));
+            phrases.put(agentPanel.AGENT_EXIT_RESPONSE, getAudioClip(getClass().getResource("/feedBackTest/sounds/"+agentPanel.AGENT_EXIT_RESPONSE+".wav")));
+        }
         
         public static int[][] parseBoardState(String stateBoard)
         {
@@ -46,71 +60,132 @@ public class puzzleApplet extends Solution8Applet {
             {return aPanel;}
     
     @Override
+    
+        //parse input parameters, these are global variables
 	public void
 	init() 
         {
-                //participantID = Integer.parseInt(this.getParameter("participantID"));
-                participantID = 99;
-                sessionPuzzleNo = 1;
-                m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
-                m_eightPuzzleCanvasObservable.setPuzzle(new PuzzleGame(boardState));
-
-                aPanel = new agentPanel();
-                agentOutput = aPanel.getTextPanel();
-                aPanel.sendMessageToUser("Welcome!");
-                
-		// Create the buttons and canvases
-		m_solveButton	= new Button("Solve It!");
-		                
-                add(aPanel, BorderLayout.PAGE_START);
-                add(m_eightPuzzleCanvasObservable, BorderLayout.PAGE_START);
-                add(m_solveButton, BorderLayout.PAGE_START);
-
-                enableUserInterface(true);
-	}
+            boolean kluge=false;
+            
+            //make a better configure switch
+            if (kluge)
+            {
+                appletHostName = getParameter("a");
+                participantID = Integer.parseInt(getParameter("b"));
+                agentType = Integer.parseInt(getParameter("c"));
+                sessionPuzzleNo = -1;
+                loadPhrases();
+            }
+            else
+            {
+                appletHostName = "localhost";//getParameter("a");
+                participantID = 99;//Integer.parseInt(getParameter("b"));
+                agentType = 3;//Integer.parseInt(getParameter("c"));
+                sessionPuzzleNo = -1;
+                loadPhrases();
+            }
+        }
     
-    public boolean
-	action(Event event, Object arg) {
+    @Override
+    //when we start we should draw the image on the screen and initialize the first puzzle
+    //there should also be an introduction by the interface done here and here only
+    public synchronized void start()
+    {
+        //add the interface elements
+        buildLayout();
         
-                if (event.target == m_shuffleButton) {
+        //initialize the first puzzle and show the board
+        loadAndShowObservedPuzzle(new PuzzleGame(parseBoardState(experiment.boardStates.get(++sessionPuzzleNo))));
+        
+        //start the agent thread
+        new Thread(myAgent).start();
 
-			m_eightPuzzleCanvas.shuffle();
-
-		} else if (event.target == m_solveButton) {
-
-			myAgent = new agentThread(this);
-                        m_eightPuzzleCanvasObservable.setObserverAgent(myAgent);
-                        new Thread(myAgent).start();
-
-		} else if (event.target == m_haltButton) {
-
-			/* halt the
-			* solver thread.
-			*/
-			enableUserInterface(true);
-		}
-
-		return true;
-	}
+    }
+    
+    //here we use a board state string to initialize a puzzle state and attach the agent object
+    //in the window to observe the puzzle.  The agent will start observing based on the initial 
+    //state of the board. 
+    private void loadAndShowObservedPuzzle(PuzzleGame setPuzzle)
+    {
+        disableInterfaceActions();
+        remove(m_eightPuzzleCanvasObservable);
+        puzzleAppletHeading.setText("Loading Next Puzzle..");
+        try {Thread.sleep(1000);} catch (InterruptedException ex) {this.repaint();}
+        puzzleAppletHeading.setText("Puzzle #" + (sessionPuzzleNo+2));
+        m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
+        m_eightPuzzleCanvasObservable.setPuzzle(setPuzzle);
+        
+        myAgent = new agentThread(this);
+        m_eightPuzzleCanvasObservable.setObserverAgent(myAgent);
+        add(m_eightPuzzleCanvasObservable, BorderLayout.PAGE_END);
+        
+        new Thread(myAgent).start();
+        m_eightPuzzleCanvasObservable.setVisible(true);
+        this.validate();
+        this.repaint();
+        enableInterfaceActions();
+    }
+    
+    
+    //here we hold any universal layout code.  This should only be called once
+    private void buildLayout()
+    {
+        aPanel = getAgentType(agentType);
+        puzzleAppletHeading.setSize(400, 100);
+        
+        add(puzzleAppletHeading, BorderLayout.PAGE_START);
+        add(aPanel, BorderLayout.PAGE_START);
+        add(m_eightPuzzleCanvasObservable, BorderLayout.PAGE_END);
+    }
+    
+    public void nextPuzzle()
+    {
+        if (sessionPuzzleNo < 2)
+        {
+           loadAndShowObservedPuzzle(new PuzzleGame(parseBoardState(experiment.boardStates.get(++sessionPuzzleNo))));
+        }
+       
+        else if(sessionPuzzleNo < 5)
+        {
+            //disableInterfaceActions();
+            loadAndShowObservedPuzzle(new PuzzleGame(parseBoardState(experiment.boardStates.get(++sessionPuzzleNo))));
+            //enableInterfaceActions();
+            //start the agent thread
+            //new Thread(myAgent).start();
+        }
+    }
+    
+    public void disableInterfaceActions()
+    {
+     m_eightPuzzleCanvasObservable.setEnabled(false);   
+    }
+    
+    public void enableInterfaceActions()
+    {
+     m_eightPuzzleCanvasObservable.setEnabled(true);   
+    }
+    
+    private agentPanel getAgentType(int index)
+    {
+        switch(index)
+        {
+            case 0: 
+                return new textAgentPanel();
+            case 1: 
+                return new picAgentPanel();
+            case 2: 
+                return new textAgentPanel(phrases);
+            case 3: 
+                return new picAgentPanel(phrases);
+                
+        }
+        return new picAgentPanel();
+    }
     
     @Override
-    public void
-	enableUserInterface(boolean on) {
-		if (on) {
-			m_eightPuzzleCanvasObservable.enable();
-			m_solveButton.enable();
-			} 
-                else    {
-			m_eightPuzzleCanvasObservable.disable();
-			m_solveButton.disable();
-                        }
-	}
-    
-    @Override
-    public PuzzleCanvas getPuzzleCanvas() 
+    public PuzzleCanvasObservable getPuzzleCanvas() 
             { return m_eightPuzzleCanvasObservable; }
-    
-             
+            
 }
 
 class BoardStringParse
@@ -133,6 +208,4 @@ class BoardStringParse
         
         return tilePositions.get(index);
     }
-            
-    
 }

@@ -1,14 +1,7 @@
 package feedBackTest;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
 import java.awt.Button;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;

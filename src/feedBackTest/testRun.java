@@ -1,7 +1,6 @@
 package feedBackTest;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.io.IOException;
 
 /**
  *You are getting closer!
@@ -12,16 +11,13 @@ public class testRun {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         
-        String boardTest = "{[4, 3, 7][0, 1, 6][8, 2, 5]}";
+        MoveData foo = new MoveData();
         
-        int[][] board = puzzleApplet.parseBoardState(boardTest);
-        
-        System.out.println("" + board[1][1]);
-        System.out.println("" + board[0][0]);
-        System.out.println("" + board[2][2]);
-        
-        System.out.println("Success!");
-    }
+        foo.dummyData();
+        //foo.writeCurrentData();
+        System.out.println("Wild!");
+       
+}
 }

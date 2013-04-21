@@ -64,11 +64,13 @@ public class PuzzleCanvas extends Canvas {
 	}
         
 	public void paint(Graphics g) {
+                super.paint(g);
 		update(g);
 	}
 
         public void update(Graphics g) {
-		Dimension d = size();
+                
+                Dimension d = size();
 
 		int dx = d.width / 3;
 		int dy = d.height / 3;

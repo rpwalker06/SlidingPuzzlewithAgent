@@ -10,9 +10,9 @@ import java.awt.Image;
 public class agentThread implements Runnable {
     
     Image agent_face;
-    agentPanel communicationMedium;
+    public agentPanel communicationMedium;
     agentBrain intelligence;
-    puzzleApplet parentApp;
+    public puzzleApplet parentApp;
     Integer newMove;
     boolean lastResponse;
 
@@ -49,21 +49,18 @@ public class agentThread implements Runnable {
         
         //we now check the move and respond accordingly
         setLastResponse(intelligence.checkUserMove(newMove));
-        this.parentApp.getPuzzleCanvas().notify();
+        this.parentApp.getPuzzleCanvas().notifyMe();
         
         if (getLastResponse())
         {
-            communicationMedium.sendMessageToUser("This is correct!");
-            //intelligence.incrementBoardState();
+            communicationMedium.doPositiveResponse();
         }
         else 
         {
             //respond to user with 
-            communicationMedium.sendMessageToUser("This is incorrect!");
+            communicationMedium.doNegativeResponse();
         }
         
-        
-            
         newMove = null;
     }
     
@@ -74,22 +71,34 @@ public class agentThread implements Runnable {
         //and introduce his/herself
         
         //say introduction!
-        communicationMedium.sendMessageToUser("Hello and welcome!");
+        communicationMedium.doIntroduction();
         
         //now start thinking, the agent can't help the user
         //without prior knowledge of the solution
         intelligence.determineOptimalSequence();
+        boolean done=false;
         
         //now help the user 
-        while (true) 
+        while (!done) 
             try { 
-                    observeUserMoves(); 
-                    if (doneHelpingUser()) break;
+                    observeUserMoves();
+                    parentApp.disableInterfaceActions();
+                    Thread.sleep(1000);
+                    parentApp.enableInterfaceActions();
+                    communicationMedium.doNeutralResponse();
+                    if (doneHelpingUser()) 
+                    {
+                        communicationMedium.doSolvedPuzzle();
+                        done = true;
+                    }
+                    
                 } 
             catch (InterruptedException ex)  
             {System.out.println("I recieved an InterruptedException, so I'm terminating...bye!");}
         
         //we're done helping the user, so say goodbye!
         //Say goodnight to the bad guy!
+        try {Thread.sleep(1000);} catch (InterruptedException e) {this.parentApp.nextPuzzle();};
+        this.parentApp.nextPuzzle();
     }
 }

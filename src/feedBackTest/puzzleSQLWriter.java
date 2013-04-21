@@ -1,12 +1,12 @@
 package feedBackTest;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
+import puzzleAgent.PuzzleCanvasObservable;
 
 /**
  *
@@ -15,39 +15,6 @@ import java.util.List;
 public class puzzleSQLWriter {
     
     static Connection con = null;
-    
-    puzzleSQLWriter()
-    {
-        Statement st = null;
-        ResultSet rs = null;
-
-        String url = "jdbc:mysql://localhost:3306/puzzlerecord";
-        String user = "puzzleuser";
-        String password = "Howard";
-
-        try {
-            con = DriverManager.getConnection(url, user, password);
-            st = con.createStatement();
-            rs = st.executeQuery("SELECT VERSION()");
-
-            if (rs.next()) {
-                System.out.println(rs.getString(1));
-            }
-
-        } catch (SQLException ex) {puzzleApplet.agentOutput.setText("Not even the intro " + ex.getMessage());
-        } 
-        
-        finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (st != null) {
-                    st.close();
-                }
-            } catch (SQLException ex) {}
-        }
-    }
     
     public static String implode(List<String> fields, String delim) 
         {String out = "";
@@ -59,49 +26,29 @@ public class puzzleSQLWriter {
             for (int i=0; i<count; i++) {if(i!=0) { out += delim; }out += placeholder;}
          return out;}
     
-    public void writeGameMove(MoveData dataMove)
+    public void writeGameMove(MoveData dataMove, PuzzleCanvasObservable p) throws IOException
     {
-        PreparedStatement updateGameMove = null;
+        String writeURL;
+        URL dbWriteRequest;
+        HttpURLConnection conn;
+        String getRequest = "";
+        String phpFile = "puzzleAppletRead.php";
         
-        String updateString = "";
-        String insertFields = implode(MoveData.fieldList, ",");
-        String placeholders = delimitedPlaceholder("?",",",MoveData.fieldList.size());
-        
-        updateString +=  "insert into gamemoves (";
-        updateString +=  insertFields;
-        updateString +=  ") values (";
-        updateString +=  placeholders;
-        updateString +=  ");";
-        
-        try 
+        for(int i=0;i<dataMove.fieldMap.size();i++)
         {
-            updateGameMove = con.prepareStatement(updateString);
-            
-            fillMoveStrings(updateGameMove, dataMove);            
-            
-            updateGameMove.executeUpdate();
+            if (i!=0){getRequest+="&";}
+                getRequest+=MoveData.fieldList.get(i) + "=" + dataMove.fieldMap.get(MoveData.fieldList.get(i));
         }
-            catch (SQLException e) {puzzleApplet.agentOutput.setText("Failed write: " + e.getMessage());
-        }
-        
-        //now we implode the fields
-    }
-    
-    private void fillMoveStrings(PreparedStatement p, MoveData dataMove)
-    {
-        int i = 0;
+
+       writeURL = "http://" + puzzleApplet.appletHostName +"/PuzzleExperiment/";
+       writeURL+=phpFile;
+       writeURL+="?"+getRequest;
+       
         try {
-                p.setInt(++i, puzzleApplet.participantID );
-                p.setInt(++i, dataMove.getPuzzlesequencenum() );
-                p.setInt(++i, dataMove.getPuzzlesequencenum() );
-                p.setString(++i, dataMove.getPuzzlestate() );
-                p.setInt(++i, dataMove.getMoveno());
-                p.setLong(++i, dataMove.getMovetime());
-                p.setInt(++i, dataMove.getTileclicked());
-                p.setInt(++i, dataMove.getAgentresponse());
-                p.setBoolean(++i, dataMove.getPuzzlesolved());
-            
-        } catch (SQLException ex) {}
-        
+                 dbWriteRequest = new URL( writeURL );
+                 conn = (HttpURLConnection) dbWriteRequest.openConnection();
+                 conn.getResponseCode();
+            }
+        catch (MalformedURLException ex) {System.out.println("Bad url");}
     }
 }
