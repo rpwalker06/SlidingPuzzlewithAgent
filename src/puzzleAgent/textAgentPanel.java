@@ -4,6 +4,10 @@ import java.applet.AudioClip;
 import java.util.HashMap;
 import javax.swing.ImageIcon;
 
+/**
+ * Agent panel view for an agent with a text output and no face
+ * @author Robert Walker
+ */
 
 public class textAgentPanel extends agentPanel {
     
@@ -51,7 +55,7 @@ public class textAgentPanel extends agentPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lbl_AgentFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
+                .addComponent(lbl_AgentFeedback, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

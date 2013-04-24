@@ -1,10 +1,14 @@
 package puzzleAgent;
 
 import java.applet.AudioClip;
+import java.awt.Dimension;
 import java.util.HashMap;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 
+/**
+ * Agent panel view for an agent with a text output and a face
+ * @author Robert Walker
+ */
 
 public class picAgentPanel extends agentPanel {
     
@@ -76,7 +80,7 @@ public class picAgentPanel extends agentPanel {
         lbl_AgentAvatar = new javax.swing.JLabel();
         lbl_AgentFeedback = new javax.swing.JLabel();
 
-        lbl_AgentAvatar.setBackground(new java.awt.Color(102, 102, 255));
+        lbl_AgentAvatar.setBackground(new java.awt.Color(204, 255, 102));
         lbl_AgentAvatar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/feedBackTest/images/face.jpg"))); // NOI18N
         lbl_AgentAvatar.setOpaque(true);
 
@@ -92,15 +96,15 @@ public class picAgentPanel extends agentPanel {
                 .addComponent(lbl_AgentAvatar, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbl_AgentFeedback, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lbl_AgentFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lbl_AgentAvatar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbl_AgentAvatar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbl_AgentFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

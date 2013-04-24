@@ -2,11 +2,15 @@ package feedBackTest;
 
 import java.applet.AudioClip;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.Label;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import puzzleAgent.PuzzleCanvasObservable;
 import puzzleAgent.agentPanel;
 import puzzleAgent.agentThread;
@@ -16,12 +20,12 @@ import puzzleFunctions.PuzzleGame;
 import puzzleFunctions.Solution8Applet;
 
 /**
- *
+ * This runs in the browser as part of a larger interface experiment
  * @author Robert Walker
  */
 public class puzzleApplet extends Solution8Applet {
 
-        public Label puzzleAppletHeading = new Label("Puzzle #1");
+        public Label puzzleAppletHeading = new Label("<html>Puzzle #1</html>");
         PuzzleCanvasObservable m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
         agentPanel aPanel;
         agentThread myAgent;
@@ -80,7 +84,7 @@ public class puzzleApplet extends Solution8Applet {
             {
                 appletHostName = "localhost";//getParameter("a");
                 participantID = 99;//Integer.parseInt(getParameter("b"));
-                agentType = 3;//Integer.parseInt(getParameter("c"));
+                agentType = 4;//Integer.parseInt(getParameter("c"));
                 sessionPuzzleNo = -1;
                 loadPhrases();
             }
@@ -91,14 +95,15 @@ public class puzzleApplet extends Solution8Applet {
     //there should also be an introduction by the interface done here and here only
     public synchronized void start()
     {
-        //add the interface elements
-        buildLayout();
+        //build the screen layout 
+        buildAgentLayout();
         
         //initialize the first puzzle and show the board
         loadAndShowObservedPuzzle(new PuzzleGame(parseBoardState(experiment.boardStates.get(++sessionPuzzleNo))));
         
-        //start the agent thread
-        new Thread(myAgent).start();
+        //running the agent for the first time, we want it to learn about the current game puzzle
+        //and introduce his/herself
+        myAgent.communicationMedium.doIntroduction();
 
     }
     
@@ -107,11 +112,16 @@ public class puzzleApplet extends Solution8Applet {
     //state of the board. 
     private void loadAndShowObservedPuzzle(PuzzleGame setPuzzle)
     {
+        //add the interface elements
         disableInterfaceActions();
         remove(m_eightPuzzleCanvasObservable);
-        puzzleAppletHeading.setText("Loading Next Puzzle..");
         try {Thread.sleep(1000);} catch (InterruptedException ex) {this.repaint();}
-        puzzleAppletHeading.setText("Puzzle #" + (sessionPuzzleNo+2));
+        String nextPuzzleMessage = "Puzzle #" + (sessionPuzzleNo+1);
+        if (agentType>0 && sessionPuzzleNo > 1)
+            nextPuzzleMessage+="\nPlease note that you will not have any agent assistance on this puzzle.";
+        puzzleAppletHeading.setText(nextPuzzleMessage);
+        //suggest garbage collection here
+        System.gc();
         m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
         m_eightPuzzleCanvasObservable.setPuzzle(setPuzzle);
         
@@ -126,33 +136,80 @@ public class puzzleApplet extends Solution8Applet {
         enableInterfaceActions();
     }
     
-    
     //here we hold any universal layout code.  This should only be called once
-    private void buildLayout()
+    private void buildAgentLayout()
     {
+        removeAll();
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         aPanel = getAgentType(agentType);
-        puzzleAppletHeading.setSize(400, 100);
+        //puzzleAppletHeading.setSize(100, 100);
+        
+        puzzleAppletHeading.setBackground(Color.DARK_GRAY);
+        puzzleAppletHeading.setFont(new Font("Arial",Font.BOLD,16));
+        puzzleAppletHeading.setForeground(Color.white);
+        puzzleAppletHeading.setVisible(true);
+        puzzleAppletHeading.setAlignment(Label.CENTER);
+        
+        add(puzzleAppletHeading);
+        add(aPanel);
+        add(m_eightPuzzleCanvasObservable);
+    }
+    
+    private void buildNoAgentLayout()
+    {
+        removeAll();
+        aPanel = new agentPanel();
+        puzzleAppletHeading.setSize(100, 100);
         
         add(puzzleAppletHeading, BorderLayout.PAGE_START);
-        add(aPanel, BorderLayout.PAGE_START);
         add(m_eightPuzzleCanvasObservable, BorderLayout.PAGE_END);
     }
     
+    //controls what type of 
     public void nextPuzzle()
     {
-        if (sessionPuzzleNo < 2)
+        if (sessionPuzzleNo < 1)
         {
+           buildAgentLayout();
            loadAndShowObservedPuzzle(new PuzzleGame(parseBoardState(experiment.boardStates.get(++sessionPuzzleNo))));
         }
-       
-        else if(sessionPuzzleNo < 5)
+        else if(sessionPuzzleNo < 3)
         {
-            //disableInterfaceActions();
+            disableInterfaceActions();
+            myAgent.communicationMedium.doGoodbye();
+            try{Thread.sleep(3100);} catch (InterruptedException ex) {System.out.println("Interrupted Exception at next puzzle!");}
+            enableInterfaceActions();
+            buildNoAgentLayout();
             loadAndShowObservedPuzzle(new PuzzleGame(parseBoardState(experiment.boardStates.get(++sessionPuzzleNo))));
-            //enableInterfaceActions();
-            //start the agent thread
-            //new Thread(myAgent).start();
         }
+        else 
+        {
+            removeAll();
+            showGameOverLabel();
+            validate();
+            repaint();
+        }
+    }
+    
+    //needs to be cleaned up, but works well for now
+    private void showGameOverLabel()
+    {
+        Label gameOver = new Label("Thank you for playing.");
+        Label gameOverer = new Label("Please continue to the next page via the button at the bottom.");
+        gameOver.setBackground(Color.DARK_GRAY);
+        gameOver.setFont(new Font("Arial",Font.BOLD,16));
+        gameOver.setForeground(Color.white);
+        gameOver.setVisible(true);
+        puzzleAppletHeading.setAlignment(Label.CENTER);
+        
+        gameOverer.setBackground(Color.DARK_GRAY);
+        gameOverer.setFont(new Font("Arial",Font.BOLD,12));
+        gameOverer.setForeground(Color.white);
+        gameOverer.setVisible(true);
+        puzzleAppletHeading.setAlignment(Label.CENTER);
+        
+        add(gameOver, BorderLayout.PAGE_START);
+        add(gameOverer, BorderLayout.PAGE_END);
     }
     
     public void disableInterfaceActions()
@@ -165,17 +222,23 @@ public class puzzleApplet extends Solution8Applet {
      m_eightPuzzleCanvasObservable.setEnabled(true);   
     }
     
+    public void setPuzzleHeadingText(String message)
+        {this.puzzleAppletHeading.setText(message);}
+    
+    
     private agentPanel getAgentType(int index)
     {
         switch(index)
         {
             case 0: 
-                return new textAgentPanel();
+                return new agentPanel();
             case 1: 
-                return new picAgentPanel();
+                return new textAgentPanel();
             case 2: 
-                return new textAgentPanel(phrases);
+                return new picAgentPanel();
             case 3: 
+                return new textAgentPanel(phrases);
+            case 4: 
                 return new picAgentPanel(phrases);
                 
         }

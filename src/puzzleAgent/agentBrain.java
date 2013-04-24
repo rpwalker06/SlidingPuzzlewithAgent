@@ -1,13 +1,14 @@
 package puzzleAgent;
 
 import feedBackTest.puzzleApplet;
+import java.util.Arrays;
 import java.util.Stack;
 import puzzleFunctions.GameNode;
 import puzzleFunctions.PuzzleCanvas;
 import puzzleFunctions.Solution8;
 
 /**
- *
+ * The agent brain represents the ability of the agent to figure out the puzzle
  * @author Robert Walker
  */
 public class agentBrain {
@@ -17,7 +18,14 @@ public class agentBrain {
         //the current state of the game board
         //the state that results when a user makes a move
         //the state of the program sequence
-       int[][] targetBoardSpaces;
+       static int[][] targetBoardSpaces =
+        {/*The matrix in the proposal is this.  It appears that there will
+        *two blanks and not one blank and a zero number, so I will change it
+        */
+       // {{0,1,2},{3,4,5},{6,7,0}};
+        {1,4,7},
+        {2,5,8},
+        {3,6,0}};
        int[][] currentBoardSpaces;
        String agent_communication;
        
@@ -62,9 +70,6 @@ public class agentBrain {
            //now that we know how to solve the puzzle, we can do something
        }
        
-       public void incrementBoardState()
-           { optimalSolutionSequence.pop(); }
-       
        private Stack<GameNode> recordOptimalSolutionSequence(GameNode optimalSequence)
        {
            Stack<GameNode> optimalMoveSequence = new Stack<GameNode>();
@@ -92,49 +97,14 @@ public class agentBrain {
            
            boolean correctMove = targetMove == newMove ? true : false;
                       
-           if(correctMove) optimalSolutionSequence.pop();
-           
            return correctMove;
        }
        
+       private boolean comparePuzzleToSolution()
+            {
+                boolean truth = (Arrays.deepEquals(boardGame.getPuzzle().getBoardState(),targetBoardSpaces));
+            return truth;}
+       
        public boolean userSolvedPuzzle()
-            {return optimalSolutionSequence.empty();}
-
-       //what does the agent react to?
-        //introducing the user to the itself as well as the task
-            //Hi I'm ....
-            //This is the task you will be doing, here are my suggestions
-    
-        //the user moving a tile
-            //if the tile is the wrong move
-            //if the tile is the correct move
-    
-        //the user has solved the puzzle
-            //congratulations!
-            //show statistics
-    
-        //transition to the next activity
-            //now we will...
-       
-       public void introduction()
-       {
-           agent_communication = "";
-           
-           agent_communication += "Welcome to the Optimal 8-Puzzle Teacher";
-           agent_communication += "This program will help you to learn how to solve the 8-Sliding Puzzle in the Fewest Number of Moves";
-           
-           setAgentCommunication(agent_communication);
-           //sendMessageToUser();
-           
-       }
-       
-       public void setAgentCommunication(String message)
-       {
-           agent_communication = message;
-       }
-       
-       public String getAgentCommunication()
-       {
-           return (agent_communication != null) ? agent_communication : "I have nothing to say.";
-       }
+            {return optimalSolutionSequence.empty() || comparePuzzleToSolution();}
 }

@@ -19,8 +19,8 @@ public class PuzzleCanvas extends Canvas {
 	protected PuzzleGame m_puzzle = new PuzzleGame();
 	protected int[] m_x = new int[9];
 	protected int[] m_y = new int[9];
-        public static Color tileColor = Color.gray;
-        public static Color textColor = Color.darkGray;
+        public static Color tileColor = new Color(77,171,85);
+        public static Color textColor = Color.white;
 
         // size of the canvans
         private Dimension m_oldSize = new Dimension();
@@ -107,6 +107,7 @@ public class PuzzleCanvas extends Canvas {
 
 			// Draw the tile's number
 			m_imageBufferGraphics.setColor(textColor);
+                        m_imageBufferGraphics.setFont(new Font("default",Font.BOLD,16));
 
 			m_imageBufferGraphics.drawString(String.valueOf(i),
 				m_x[i] + (dx / 2) - (fontMetrics.stringWidth(String.valueOf(i)) / 2),

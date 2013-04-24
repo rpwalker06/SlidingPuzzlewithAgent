@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 import puzzleFunctions.PuzzleCanvas;
 
 /**
+ * Here we extend the PuzzleCanvas class from the original program add 
+ * the necessary affordances needed for communication with the agent
  * @author Robert Walker
  */
 public class PuzzleCanvasObservable extends PuzzleCanvas {
@@ -15,6 +17,7 @@ public class PuzzleCanvasObservable extends PuzzleCanvas {
     //declare an agent to observe this puzzle 
     private agentThread myObserver;
 
+    //object which packages data to write the dB
     private MoveData moves = new MoveData();
     
     public PuzzleCanvasObservable(agentThread observer)
@@ -45,18 +48,18 @@ public class PuzzleCanvasObservable extends PuzzleCanvas {
     
     @Override
     //we augment the move function with a notification to the agent thread
-    //what should the agent do now?
     public synchronized void move(int tile)
     {
         super.move(tile);
         myObserver.notifyMove(tile);
-        //if (myObserver.intelligence.userSolvedPuzzle())
-            //{  myObserver.parentApp.nextPuzzle();}
     }
     
     public synchronized void notifyMe()
         {notify();}
     
+    @Override
+    //if it is a valid move, we halt the PuzzleCanvas object until it
+    //sends move details to the dB
     public synchronized boolean
 	mouseUp(Event event, int x, int y) {
         

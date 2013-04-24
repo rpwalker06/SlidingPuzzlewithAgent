@@ -25,12 +25,19 @@ public class agentThread implements Runnable {
     public void setNewMove(int moveNew)
         {newMove = moveNew;}
     
+    //allow the PuzzleCanvas classes to notify the thread
+    //of a user move
     public synchronized void notifyMove(int tile)
     {
         setNewMove(tile);
         notify();
     }
     
+    //the agent's ability to move the board
+    private synchronized void moveTile(int tile)
+        {intelligence.boardGame.move(tile);}
+            
+    //each agent thread needs to be hosted by parent app
     public agentThread(puzzleApplet appParent)
     {
         newMove = null;
@@ -42,37 +49,50 @@ public class agentThread implements Runnable {
     private boolean doneHelpingUser()
         {return intelligence.userSolvedPuzzle();}
     
+    //thread which waits to be notified by the PuzzleCanvas of a user move
+    //it also notifies the PuzzleCanvas when it has checked the move
+    //this method will also respond to the user if there is a visible agentPanel
     public synchronized void observeUserMoves() throws InterruptedException
     {
         //spin and wait for the user to report a move made
-        while(newMove==null) {wait();}
+        while(newMove==null) 
+            {wait();}
         
         //we now check the move and respond accordingly
         setLastResponse(intelligence.checkUserMove(newMove));
         this.parentApp.getPuzzleCanvas().notifyMe();
         
-        if (getLastResponse())
-        {
-            communicationMedium.doPositiveResponse();
-        }
-        else 
-        {
-            //respond to user with 
-            communicationMedium.doNegativeResponse();
-        }
+        if (communicationMedium.getTextPanel() != null)
+            giveUserFeedback();
         
         newMove = null;
     }
     
-    @Override
-    public void run() 
+    //respond to the user based on the last move
+    private synchronized void giveUserFeedback() throws InterruptedException
     {
-        //now that we are running the agent, we want it to learn about the current game puzzle
-        //and introduce his/herself
-        
-        //say introduction!
-        communicationMedium.doIntroduction();
-        
+        if (getLastResponse())
+            {
+                communicationMedium.doPositiveResponse();
+                intelligence.optimalSolutionSequence.pop();
+            }
+            else 
+            {
+                //respond to user negatively and undo their last move
+                communicationMedium.doNegativeResponse();
+                parentApp.disableInterfaceActions();
+
+                //be polite and wait...
+                this.wait(1037);
+                moveTile(newMove);
+            }
+    }
+    
+    @Override
+    //when the agent starts it will find the optimal solution for its puzzle
+    //and observe until the puzzle is solved
+    public synchronized void run() 
+    {
         //now start thinking, the agent can't help the user
         //without prior knowledge of the solution
         intelligence.determineOptimalSequence();
@@ -89,16 +109,18 @@ public class agentThread implements Runnable {
                     if (doneHelpingUser()) 
                     {
                         communicationMedium.doSolvedPuzzle();
+                        parentApp.setPuzzleHeadingText("Solved the Puzzle!");
+                        wait(1750);
+                        communicationMedium.doNeutralResponse();
+                        parentApp.setPuzzleHeadingText("Loading next puzzle");
                         done = true;
                     }
-                    
                 } 
             catch (InterruptedException ex)  
             {System.out.println("I recieved an InterruptedException, so I'm terminating...bye!");}
         
         //we're done helping the user, so say goodbye!
         //Say goodnight to the bad guy!
-        try {Thread.sleep(1000);} catch (InterruptedException e) {this.parentApp.nextPuzzle();};
         this.parentApp.nextPuzzle();
     }
 }

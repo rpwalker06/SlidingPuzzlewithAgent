@@ -3,7 +3,6 @@ package feedBackTest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ public class MoveData
     private puzzleSQLWriter writer = new puzzleSQLWriter();
     public HashMap<String,String> fieldMap = new HashMap<String,String>();
     
-    SimpleDateFormat sqlDateFormatter = new SimpleDateFormat("yyyyMMdd_HH:mm:ss:SS");
     private int puzzlesequencenum;
     private int sessionpuzzleno;
 
@@ -122,7 +120,7 @@ public class MoveData
         fieldMap.put(fieldList.get(++i),puzzleApplet.participantID + "" );
         fieldMap.put(fieldList.get(++i), puzzleApplet.sessionPuzzleNo +"");
         try {fieldMap.put(fieldList.get(++i), URLEncoder.encode(this.puzzlestate,"UTF-8"));} 
-        catch (UnsupportedEncodingException ex) {fieldMap.put(fieldList.get(++i), "Error");}
+        catch (UnsupportedEncodingException ex) {fieldMap.put(fieldList.get(i), "Error");}
         fieldMap.put(fieldList.get(++i), this.moveno +"");
         fieldMap.put(fieldList.get(++i), this.movetime+"");
         fieldMap.put(fieldList.get(++i), this.tileclicked+"");
