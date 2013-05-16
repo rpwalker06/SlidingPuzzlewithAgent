@@ -25,7 +25,7 @@ import puzzleFunctions.Solution8Applet;
  */
 public class puzzleApplet extends Solution8Applet {
 
-        public Label puzzleAppletHeading = new Label("<html>Puzzle #1</html>");
+        public Label puzzleAppletHeading=getAnnouncementLabel(null);;
         PuzzleCanvasObservable m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
         agentPanel aPanel;
         agentThread myAgent;
@@ -84,7 +84,7 @@ public class puzzleApplet extends Solution8Applet {
             {
                 appletHostName = "localhost";//getParameter("a");
                 participantID = 99;//Integer.parseInt(getParameter("b"));
-                agentType = 4;//Integer.parseInt(getParameter("c"));
+                agentType = 1;//Integer.parseInt(getParameter("c"));
                 sessionPuzzleNo = -1;
                 loadPhrases();
             }
@@ -116,10 +116,8 @@ public class puzzleApplet extends Solution8Applet {
         disableInterfaceActions();
         remove(m_eightPuzzleCanvasObservable);
         try {Thread.sleep(1000);} catch (InterruptedException ex) {this.repaint();}
-        String nextPuzzleMessage = "Puzzle #" + (sessionPuzzleNo+1);
-        if (agentType>0 && sessionPuzzleNo > 1)
-            nextPuzzleMessage+="\nPlease note that you will not have any agent assistance on this puzzle.";
-        puzzleAppletHeading.setText(nextPuzzleMessage);
+        
+        puzzleAppletHeading.setText("Puzzle #" + (sessionPuzzleNo+1));
         //suggest garbage collection here
         System.gc();
         m_eightPuzzleCanvasObservable=new PuzzleCanvasObservable();
@@ -142,13 +140,6 @@ public class puzzleApplet extends Solution8Applet {
         removeAll();
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         aPanel = getAgentType(agentType);
-        //puzzleAppletHeading.setSize(100, 100);
-        
-        puzzleAppletHeading.setBackground(Color.DARK_GRAY);
-        puzzleAppletHeading.setFont(new Font("Arial",Font.BOLD,16));
-        puzzleAppletHeading.setForeground(Color.white);
-        puzzleAppletHeading.setVisible(true);
-        puzzleAppletHeading.setAlignment(Label.CENTER);
         
         add(puzzleAppletHeading);
         add(aPanel);
@@ -159,9 +150,10 @@ public class puzzleApplet extends Solution8Applet {
     {
         removeAll();
         aPanel = new agentPanel();
-        puzzleAppletHeading.setSize(100, 100);
         
         add(puzzleAppletHeading, BorderLayout.PAGE_START);
+        //only add the disclaimer label when the user has already seen an agent
+        if (agentType > 0) add(getAnnouncementLabel("Please note that you will not have any agent assistance on this puzzle."));
         add(m_eightPuzzleCanvasObservable, BorderLayout.PAGE_END);
     }
     
@@ -194,22 +186,24 @@ public class puzzleApplet extends Solution8Applet {
     //needs to be cleaned up, but works well for now
     private void showGameOverLabel()
     {
-        Label gameOver = new Label("Thank you for playing.");
-        Label gameOverer = new Label("Please continue to the next page via the button at the bottom.");
-        gameOver.setBackground(Color.DARK_GRAY);
-        gameOver.setFont(new Font("Arial",Font.BOLD,16));
-        gameOver.setForeground(Color.white);
-        gameOver.setVisible(true);
-        puzzleAppletHeading.setAlignment(Label.CENTER);
-        
-        gameOverer.setBackground(Color.DARK_GRAY);
-        gameOverer.setFont(new Font("Arial",Font.BOLD,12));
-        gameOverer.setForeground(Color.white);
-        gameOverer.setVisible(true);
-        puzzleAppletHeading.setAlignment(Label.CENTER);
-        
+        Label gameOver = getAnnouncementLabel("Thank you for playing.");
+        Label gameOverer = getAnnouncementLabel("Please continue to the next page via the button at the bottom.");
+                
         add(gameOver, BorderLayout.PAGE_START);
         add(gameOverer, BorderLayout.PAGE_END);
+    }
+    
+    private Label getAnnouncementLabel(String message)
+    {
+        Label announcement=new Label(message);
+        
+        announcement.setBackground(Color.DARK_GRAY);
+        announcement.setFont(new Font("Arial",Font.BOLD,16));
+        announcement.setForeground(Color.white);
+        announcement.setVisible(true);
+        announcement.setAlignment(Label.CENTER);
+        
+        return announcement;
     }
     
     public void disableInterfaceActions()
